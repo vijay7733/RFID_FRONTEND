@@ -7,12 +7,23 @@ import { createClient } from "@supabase/supabase-js";
 dotenv.config();
 
 const app = express();
-app.use(cors());
 app.use(express.json());
 
 const PORT = process.env.PORT || 5000;
 
+// -------------------------
+// ✅ CORS configuration (only deployed frontend allowed)
+// -------------------------
+app.use(
+  cors({
+    origin: "https://rfid-frotend.onrender.com",
+    credentials: true,
+  })
+);
+
+// -------------------------
 // Supabase config
+// -------------------------
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_KEY;
 
@@ -24,6 +35,10 @@ if (!SUPABASE_URL || !SUPABASE_KEY) {
 // Create Supabase client
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
+// -------------------------
+// API Routes
+// -------------------------
+
 // GET: fetch all attendance records
 app.get("/api/attendance", async (req, res) => {
   try {
@@ -33,7 +48,6 @@ app.get("/api/attendance", async (req, res) => {
       .order("check_in", { ascending: false });
 
     if (error) throw error;
-
     res.json(data);
   } catch (err) {
     console.error("⚠️ Error fetching attendance:", err.message);
@@ -81,7 +95,9 @@ app.post("/api/attendance/checkout", async (req, res) => {
   }
 });
 
+// -------------------------
 // Start server
+// -------------------------
 app.listen(PORT, () =>
   console.log(`✅ Backend running on http://localhost:${PORT}`)
 );
